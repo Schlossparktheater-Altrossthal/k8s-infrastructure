@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+  namespace: website
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      nodeSelector:
+        sommertheater: "true"
+      containers:
+        - name: website
+          image: limitlessgreen/theater_website:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: DATABASE_URL
+            - name: NEXTAUTH_URL
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: NEXTAUTH_URL
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: AUTH_SECRET
+            - name: REALTIME_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: REALTIME_AUTH_TOKEN
+            - name: REALTIME_BASE_PATH
+              value: /realtime
+            - name: EMAIL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: EMAIL_SERVER
+                  optional: true
+            - name: EMAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: website-config
+                  key: EMAIL_FROM
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

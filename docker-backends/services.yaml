@@ -1,0 +1,56 @@
+# Services still running in Docker Compose on node 2 (vmd179361 / 38.242.238.59)
+# IPs are synced automatically by k8s-endpoint-sync timer (TODO: adapt for node 2)
+
+---
+# Mailu SMTP/IMAP — mail.sommertheater-altrossthal.de
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailu
+  namespace: docker-backends
+  annotations:
+    docker-backend/node: node2
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: mailu
+  namespace: docker-backends
+subsets:
+  - addresses:
+      - ip: PLACEHOLDER_NODE2_IP
+    ports:
+      - name: http
+        port: 80
+
+---
+# Nextcloud AIO — cloud.sommertheater-altrossthal.de
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-theater
+  namespace: docker-backends
+  annotations:
+    docker-backend/node: node2
+spec:
+  ports:
+    - name: http
+      port: 11000
+      targetPort: 11000
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: nextcloud-theater
+  namespace: docker-backends
+subsets:
+  - addresses:
+      - ip: PLACEHOLDER_NODE2_IP
+    ports:
+      - name: http
+        port: 11000

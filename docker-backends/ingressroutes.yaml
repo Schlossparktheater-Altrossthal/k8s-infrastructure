@@ -1,0 +1,39 @@
+# IngressRoutes for Docker services on node 2 routed via K8s Traefik
+
+---
+# Mailu webmail / admin (via mailu-front nginx)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mailu-theater
+  namespace: docker-backends
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`mail.sommertheater-altrossthal.de`) || Host(`webmail.sommertheater-altrossthal.de`)
+      kind: Rule
+      services:
+        - name: mailu
+          port: 80
+  tls:
+    certResolver: cloudflare
+
+---
+# Nextcloud AIO
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-theater
+  namespace: docker-backends
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`cloud.sommertheater-altrossthal.de`)
+      kind: Rule
+      services:
+        - name: nextcloud-theater
+          port: 11000
+  tls:
+    certResolver: cloudflare

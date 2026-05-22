@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: theater-website
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
+    targetRevision: HEAD
+    path: applications/website
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: website
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
