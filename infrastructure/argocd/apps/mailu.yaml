@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mailu
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  sources:
+    - repoURL: https://mailu.github.io/helm-charts/
+      chart: mailu
+      targetRevision: 2.7.1
+      helm:
+        releaseName: mailu
+        valueFiles:
+          - $values/infrastructure/mailu/helm-values.yaml
+    - repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mailu
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

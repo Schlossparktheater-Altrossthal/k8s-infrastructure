@@ -1,0 +1,124 @@
+# Mailu Helm Values für K8s Migration
+# Ursprung: sommertheater-altrossthal.de Mailu Docker-Setup
+
+global:
+  storageClass: longhorn
+
+# Hostname und Domain
+hostnames:
+  - mail.sommertheater-altrossthal.de
+domain: sommertheater-altrossthal.de
+postmaster: admin
+
+# Version (entspricht dem Docker-Setup)
+mailuVersion: "2024.06"
+
+# Timezone
+timezone: "Europe/Berlin"
+
+# Subnet des K3s-Clusters (für interne Kommunikation)
+subnet: 10.42.0.0/16
+
+# Vorhandene Settings aus Docker-Compose
+recipientDelimiter: "+"
+credentialRounds: 12
+sessionCookieSecure: true
+logLevel: INFO
+
+# DMARC
+dmarc:
+  rua: admin
+  ruf: admin
+
+# Limits
+limits:
+  authRatelimit:
+    ip: 5/hour
+    user: 50/day
+  messageRatelimit:
+    value: 200/day
+  messageSizeLimitMb: 50
+
+# Features
+webmail:
+  enabled: true
+  # Roundcube
+  type: roundcube
+
+admin:
+  enabled: true
+
+api:
+  enabled: true
+  token: "" # via secret
+
+antivirus:
+  enabled: true
+  # ClamAV
+
+fetchmail:
+  enabled: true
+  delay: 600
+
+fullTextSearch:
+  enabled: true
+  attachments: true
+
+# Ingress via Traefik (nur für HTTP/HTTPS Webmail/Admin)
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: cloudflare
+  tls: false  # Traefik übernimmt TLS
+
+# Front (nginx): Mail-Ports direkt auf Node 2 via hostPort
+front:
+  nodeSelector:
+    sommertheater: "true"
+  hostPort:
+    enabled: true
+
+# Alle anderen Komponenten auf Node 2 pinnen
+admin:
+  nodeSelector:
+    sommertheater: "true"
+
+postfix:
+  nodeSelector:
+    sommertheater: "true"
+
+dovecot:
+  nodeSelector:
+    sommertheater: "true"
+
+rspamd:
+  nodeSelector:
+    sommertheater: "true"
+
+clamav:
+  nodeSelector:
+    sommertheater: "true"
+
+webmail:
+  nodeSelector:
+    sommertheater: "true"
+
+fetchmail:
+  nodeSelector:
+    sommertheater: "true"
+
+# TLS via cert-manager (cloudflare DNS-01)
+certManager:
+  enabled: true
+  issuerName: cloudflare-letsencrypt
+  issuerType: ClusterIssuer
+
+# Persistence - alle auf Longhorn
+persistence:
+  storageClass: longhorn
+
+# Existierender Secret für secretKey
+existingSecret: mailu-secrets
