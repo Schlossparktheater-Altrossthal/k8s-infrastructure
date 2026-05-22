@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: website-backup
+  namespace: theater-website
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: website-db-backup
+  namespace: theater-website
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          serviceAccountName: website-backup
+          restartPolicy: OnFailure
+          nodeSelector:
+            sommertheater: "true"
+          volumes:
+            - name: backups
+              hostPath:
+                path: /home/theater/services/website/backups
+                type: DirectoryOrCreate
+          containers:
+            - name: backup
+              image: postgres:16-alpine
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: theater-website-config
+                      key: DATABASE_URL
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: theater-website-config
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  NOW=$(date -u +%Y%m%dT%H%M%SZ)
+                  DOW=$(date -u +%u)
+                  DOM=$(date -u +%d)
+                  MOY=$(date -u +%m)
+
+                  mkdir -p /backups/daily /backups/weekly /backups/monthly /backups/yearly
+
+                  TMPFILE=$(mktemp)
+                  pg_dump --dbname="postgresql://theater:${PGPASSWORD}@postgresql.theater-website.svc.cluster.local:5432/theater_prod" | gzip > "$TMPFILE"
+
+                  cp "$TMPFILE" "/backups/daily/theater_prod_${NOW}.sql.gz"
+                  [ "$DOW" = "1" ] && cp "$TMPFILE" "/backups/weekly/theater_prod_${NOW}.sql.gz"
+                  [ "$DOM" = "01" ] && cp "$TMPFILE" "/backups/monthly/theater_prod_${NOW}.sql.gz"
+                  [ "$DOM" = "01" ] && [ "$MOY" = "01" ] && cp "$TMPFILE" "/backups/yearly/theater_prod_${NOW}.sql.gz"
+                  rm "$TMPFILE"
+
+                  find /backups/daily -name "*.sql.gz" -mtime +2 -delete
+                  find /backups/weekly -name "*.sql.gz" -mtime +14 -delete
+                  find /backups/monthly -name "*.sql.gz" -mtime +60 -delete
+                  find /backups/yearly -name "*.sql.gz" -mtime +365 -delete
+
+                  echo "Backup done: theater_prod_${NOW}.sql.gz"

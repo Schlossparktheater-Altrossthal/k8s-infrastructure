@@ -19,7 +19,7 @@ spec:
         sommertheater: "true"
       containers:
         - name: website
-          image: limitlessgreen/theater_website:latest
+          image: limitlessgreen/theater_website:prod
           ports:
             - containerPort: 3000
               name: http
