@@ -26,18 +26,13 @@ limits:
     value: 200/day
   messageSizeLimitMb: 50
 
-# TLS: cert-manager Secret mailu-certificates wird in front-Pod gemountet
-# tlsFlavor "cert" = lese /certs/cert.pem + /certs/key.pem für SMTP/IMAP TLS
+# TLS: cert-manager Secret mailu-certificates wird in front-Pod als /certs/ gemountet
+# tlsFlavor "mail" = TLS nur für Mail-Ports (SMTP/IMAP/POP3), Web-Interface plain HTTP
+# Traefik übernimmt HTTPS-Terminierung für das Web-Interface via IngressRoute
 ingress:
-  enabled: true
-  ingressClassName: traefik
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.tls.certresolver: cloudflare
-  tls: false
+  enabled: false
   existingSecret: mailu-certificates
-  tlsFlavorOverride: "cert"
+  tlsFlavorOverride: "mail"
 
 # front: Mail-Ports direkt auf Node 2 via hostPort
 front:
