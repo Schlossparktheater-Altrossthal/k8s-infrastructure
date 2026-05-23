@@ -18,6 +18,12 @@ spec:
       namespace: theater-website
       name: data-postgresql-0
       jsonPointers: [/spec/storageClassName]
+    - group: apps
+      kind: StatefulSet
+      namespace: theater-website
+      name: postgresql
+      jqPathExpressions:
+        - .spec.volumeClaimTemplates[].spec.storageClassName
   syncPolicy:
     automated:
       prune: true
