@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: website
-          image: limitlessgreen/theater_website:prod
+          image: limitlessgreen/theater_website:8ff1b88
           ports:
             - containerPort: 3000
               name: http
