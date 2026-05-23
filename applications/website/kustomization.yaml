@@ -5,7 +5,6 @@ resources:
   - vault-access.yaml
   - postgresql.yaml
   - deployment.yaml
-  - service.yaml
   - certificate.yaml
   - ingressroute.yaml
   - backup.yaml

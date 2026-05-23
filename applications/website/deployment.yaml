@@ -1,36 +1,5 @@
-# Migration job runs as ArgoCD PreSync hook — completes before the Deployment rolls out.
 # Image tag is updated automatically by GitHub Actions on every push to production.
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: website-migrate
-  namespace: theater-website
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-spec:
-  backoffLimit: 2
-  template:
-    spec:
-      restartPolicy: OnFailure
-      containers:
-        - name: migrate
-          image: limitlessgreen/theater_website:03a231f2e643802ac0d7863fb167d65810d75c32
-          command: ["node", "scripts/run-prisma-migrate.mjs"]
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: theater-website-config
-                  key: DATABASE_URL
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
----
+# Migration runs as init container — after PostgreSQL is ready, before the app starts.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,6 +17,23 @@ spec:
       labels:
         app: website
     spec:
+      initContainers:
+        - name: migrate
+          image: limitlessgreen/theater_website:03a231f2e643802ac0d7863fb167d65810d75c32
+          command: ["node", "scripts/run-prisma-migrate.mjs"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: theater-website-config
+                  key: DATABASE_URL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
       containers:
         - name: website
           image: limitlessgreen/theater_website:03a231f2e643802ac0d7863fb167d65810d75c32
