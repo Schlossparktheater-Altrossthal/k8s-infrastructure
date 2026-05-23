@@ -51,7 +51,7 @@ spec:
         name: data
       spec:
         accessModes: [ReadWriteOnce]
-        storageClassName: longhorn-ha
+        storageClassName: longhorn
         resources:
           requests:
             storage: 10Gi
