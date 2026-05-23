@@ -1,10 +1,10 @@
 # Migration job runs as ArgoCD PreSync hook — completes before the Deployment rolls out.
-# Image tag is updated automatically by GitHub Actions on every push to production.
+# Image tag is updated automatically by GitHub Actions on every push to staging.
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: website-migrate
-  namespace: theater-website
+  namespace: theater-website-staging
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
@@ -15,7 +15,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: migrate
-          image: limitlessgreen/theater_website:prod
+          image: limitlessgreen/theater_website:staging
           command: ["node", "scripts/run-prisma-migrate.mjs"]
           env:
             - name: DATABASE_URL
@@ -35,7 +35,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: website
-  namespace: theater-website
+  namespace: theater-website-staging
 spec:
   replicas: 1
   strategy:
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: website
-          image: limitlessgreen/theater_website:63e33fa
+          image: limitlessgreen/theater_website:staging
           ports:
             - containerPort: 3000
               name: http
@@ -58,9 +58,9 @@ spec:
             - name: NODE_ENV
               value: production
             - name: NEXTAUTH_URL
-              value: https://sommertheater-altrossthal.de
+              value: https://staging.sommertheater-altrossthal.de
             - name: NEXT_PUBLIC_BASE_URL
-              value: https://sommertheater-altrossthal.de
+              value: https://staging.sommertheater-altrossthal.de
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -100,17 +100,17 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              cpu: 200m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
-              cpu: 1000m
-              memory: 1Gi
+              cpu: 500m
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: website
-  namespace: theater-website
+  namespace: theater-website-staging
 spec:
   selector:
     app: website

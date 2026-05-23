@@ -1,0 +1,43 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: website-staging
+  namespace: theater-website-staging
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`staging.sommertheater-altrossthal.de`)
+      kind: Rule
+      services:
+        - name: website
+          port: 3000
+  tls:
+    secretName: theater-website-staging-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: website-staging-http
+  namespace: theater-website-staging
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`staging.sommertheater-altrossthal.de`)
+      kind: Rule
+      middlewares:
+        - name: redirect-https
+      services:
+        - name: website
+          port: 3000
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: theater-website-staging
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: website-db-backup
+  namespace: theater-website-staging
+spec:
+  schedule: "0 4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          nodeSelector:
+            sommertheater: "true"
+          volumes:
+            - name: backups
+              hostPath:
+                path: /home/theater/services/website-staging/backups
+                type: DirectoryOrCreate
+          containers:
+            - name: backup
+              image: postgres:16-alpine
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: theater-website-config
+                      key: DATABASE_URL
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: theater-website-config
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  NOW=$(date -u +%Y%m%dT%H%M%SZ)
+                  mkdir -p /backups/daily
+                  pg_dump --dbname="postgresql://theater:${PGPASSWORD}@postgresql.theater-website-staging.svc.cluster.local:5432/theater_staging" \
+                    | gzip > "/backups/daily/theater_staging_${NOW}.sql.gz"
+                  find /backups/daily -name "*.sql.gz" -mtime +7 -delete
+                  echo "Backup done: theater_staging_${NOW}.sql.gz"
