@@ -21,7 +21,7 @@ spec:
         sommertheater: "true"
       containers:
         - name: vaultwarden
-          image: vaultwarden/server:1.34.1
+          image: vaultwarden/server:1.36.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
