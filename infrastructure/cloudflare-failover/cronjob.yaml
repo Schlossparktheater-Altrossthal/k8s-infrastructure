@@ -7,8 +7,9 @@ data:
   NODE2_IP: "38.242.238.59"
   NODE1_IP: "82.208.22.191"
   ZONE_NAME: "sommertheater-altrossthal.de"
-  # Space-separated list of A records to manage
-  DOMAINS: "sommertheater-altrossthal.de www.sommertheater-altrossthal.de bitwarden.sommertheater-altrossthal.de webmail.sommertheater-altrossthal.de"
+  # Wildcard covers all subdomains; apex + www have explicit records
+  # mail/ip/cloud/s3 stay on node2 (hostPort or Docker-only services)
+  DOMAINS: "sommertheater-altrossthal.de www.sommertheater-altrossthal.de *.sommertheater-altrossthal.de"
   script.sh: |
     #!/bin/sh
     set -e
