@@ -8,3 +8,4 @@ resources:
   - certificate.yaml
   - ingressroute.yaml
   - backup.yaml
+  - db-sync.yaml
