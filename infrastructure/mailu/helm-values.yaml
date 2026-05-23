@@ -35,11 +35,15 @@ ingress:
   tlsFlavorOverride: "mail"
 
 # front: Mail-Ports direkt auf Node 2 via hostPort
+# Recreate-Strategie nötig: Rolling Update scheitert, weil hostPorts nicht
+# gleichzeitig von zwei Pods belegt werden können
 front:
   nodeSelector:
     sommertheater: "true"
   hostPort:
     enabled: true
+  strategy:
+    type: Recreate
 
 admin:
   enabled: true
