@@ -15,7 +15,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: migrate
-          image: limitlessgreen/theater_website:prod
+          image: limitlessgreen/theater_website:03a231f2e643802ac0d7863fb167d65810d75c32
           command: ["node", "scripts/run-prisma-migrate.mjs"]
           env:
             - name: DATABASE_URL
@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: website
-          image: limitlessgreen/theater_website:63e33fa
+          image: limitlessgreen/theater_website:03a231f2e643802ac0d7863fb167d65810d75c32
           ports:
             - containerPort: 3000
               name: http
