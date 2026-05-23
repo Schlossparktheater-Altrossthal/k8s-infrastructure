@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mailu-webmail
+  namespace: mailu
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`mail.sommertheater-altrossthal.de`) || Host(`webmail.sommertheater-altrossthal.de`)
+      kind: Rule
+      services:
+        - name: mailu-front
+          port: 80
+  tls:
+    secretName: mailu-certificates

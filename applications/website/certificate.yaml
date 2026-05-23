@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: theater-website-tls
+  namespace: theater-website
+spec:
+  secretName: theater-website-tls
+  issuerRef:
+    name: cloudflare-letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+    - sommertheater-altrossthal.de
+    - www.sommertheater-altrossthal.de
+  duration: 2160h
+  renewBefore: 360h

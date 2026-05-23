@@ -13,4 +13,4 @@ spec:
         - name: theater-vaultwarden
           port: 80
   tls:
-    certResolver: cloudflare
+    secretName: theater-vaultwarden-tls
