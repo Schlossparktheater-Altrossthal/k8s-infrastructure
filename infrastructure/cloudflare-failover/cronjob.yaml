@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-failover-config
+  namespace: cert-manager
+data:
+  NODE2_IP: "38.242.238.59"
+  NODE1_IP: "82.208.22.191"
+  ZONE_NAME: "sommertheater-altrossthal.de"
+  # Space-separated list of A records to manage
+  DOMAINS: "sommertheater-altrossthal.de www.sommertheater-altrossthal.de bitwarden.sommertheater-altrossthal.de webmail.sommertheater-altrossthal.de"
+  script.sh: |
+    #!/bin/sh
+    set -e
+
+    CF_TOKEN="$(cat /secrets/api-token)"
+
+    # Health check: try node2 on port 443, 3 attempts with 5s timeout each
+    NODE2_HEALTHY=false
+    for i in 1 2 3; do
+      if curl -sk --connect-timeout 5 --max-time 8 \
+          "https://${NODE2_IP}" -o /dev/null -w "%{http_code}" | grep -qE "^[1-5]"; then
+        NODE2_HEALTHY=true
+        break
+      fi
+      sleep 5
+    done
+
+    echo "Node2 (${NODE2_IP}) healthy: ${NODE2_HEALTHY}"
+    TARGET_IP="${NODE2_IP}"
+    [ "${NODE2_HEALTHY}" = "false" ] && TARGET_IP="${NODE1_IP}"
+
+    # Get zone ID
+    ZONE_ID=$(curl -sf "https://api.cloudflare.com/client/v4/zones?name=${ZONE_NAME}" \
+      -H "Authorization: Bearer ${CF_TOKEN}" | jq -r '.result[0].id')
+
+    if [ -z "${ZONE_ID}" ] || [ "${ZONE_ID}" = "null" ]; then
+      echo "ERROR: Could not get Cloudflare zone ID" >&2
+      exit 1
+    fi
+
+    # Update each A record if needed
+    for DOMAIN in ${DOMAINS}; do
+      RECORD=$(curl -sf "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=A&name=${DOMAIN}" \
+        -H "Authorization: Bearer ${CF_TOKEN}")
+      RECORD_ID=$(echo "${RECORD}" | jq -r '.result[0].id')
+      CURRENT_IP=$(echo "${RECORD}" | jq -r '.result[0].content')
+      PROXIED=$(echo "${RECORD}" | jq -r '.result[0].proxied')
+
+      if [ "${CURRENT_IP}" = "${TARGET_IP}" ]; then
+        echo "OK: ${DOMAIN} -> ${TARGET_IP}"
+      else
+        echo "UPDATING: ${DOMAIN}: ${CURRENT_IP} -> ${TARGET_IP}"
+        curl -sf -X PUT \
+          "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${RECORD_ID}" \
+          -H "Authorization: Bearer ${CF_TOKEN}" \
+          -H "Content-Type: application/json" \
+          --data "{\"type\":\"A\",\"name\":\"${DOMAIN}\",\"content\":\"${TARGET_IP}\",\"proxied\":${PROXIED}}" \
+          | jq -r '.success'
+      fi
+    done
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cloudflare-dns-failover
+  namespace: cert-manager
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          # Must run on node1 (control-plane) — survives node2 failure
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: "true"
+          restartPolicy: OnFailure
+          volumes:
+            - name: secrets
+              secret:
+                secretName: cloudflare-api-token
+            - name: script
+              configMap:
+                name: cloudflare-failover-config
+                defaultMode: 0755
+                items:
+                  - key: script.sh
+                    path: script.sh
+          containers:
+            - name: failover
+              image: alpine/curl:latest
+              command: ["/bin/sh", "/scripts/script.sh"]
+              envFrom:
+                - configMapRef:
+                    name: cloudflare-failover-config
+              volumeMounts:
+                - name: secrets
+                  mountPath: /secrets
+                  readOnly: true
+                - name: script
+                  mountPath: /scripts
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
