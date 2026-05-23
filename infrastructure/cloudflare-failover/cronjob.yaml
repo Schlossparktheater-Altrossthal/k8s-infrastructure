@@ -13,6 +13,8 @@ data:
     #!/bin/sh
     set -e
 
+    apk add -q --no-cache jq 2>/dev/null || true
+
     CF_TOKEN="$(cat /secrets/api-token)"
 
     # Health check: try node2 on port 443, 3 attempts with 5s timeout each
