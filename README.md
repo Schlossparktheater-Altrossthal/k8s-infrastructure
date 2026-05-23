@@ -3,12 +3,6 @@
 GitOps repository for all Kubernetes workloads of Schlossparktheater Altroßthal.
 Managed via ArgoCD on the shared K3s cluster.
 
-## Cluster
-
-| Node | Role | IP |
-|------|------|----|
-| vmd116756 (LimitlessGreen) | control-plane, edge | 82.208.22.191 |
-| vmd179361 (Sommertheater) | worker | 38.242.238.59 |
 
 ## Services
 
