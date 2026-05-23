@@ -17,8 +17,6 @@ spec:
       labels:
         app: theater-vaultwarden
     spec:
-      nodeSelector:
-        sommertheater: "true"
       containers:
         - name: vaultwarden
           image: vaultwarden/server:1.36.0

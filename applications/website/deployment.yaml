@@ -15,8 +15,6 @@ spec:
       labels:
         app: website
     spec:
-      nodeSelector:
-        sommertheater: "true"
       containers:
         - name: website
           image: limitlessgreen/theater_website:prod
