@@ -11,7 +11,7 @@ spec:
     path: applications/website
   destination:
     server: https://kubernetes.default.svc
-    namespace: website
+    namespace: theater-website
   ignoreDifferences:
     - group: ""
       kind: PersistentVolumeClaim
