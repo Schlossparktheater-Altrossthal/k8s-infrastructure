@@ -18,10 +18,41 @@ spec:
     - repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
       targetRevision: HEAD
       ref: values
+    - repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
+      targetRevision: HEAD
+      path: infrastructure/mailu
   destination:
     server: https://kubernetes.default.svc
     namespace: mailu
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      namespace: mailu
+      name: mailu-api
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      namespace: mailu
+      name: mailu-initial-account
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      namespace: mailu
+      name: mailu-roundcube
+      jsonPointers:
+        - /data
+    - group: apps
+      kind: StatefulSet
+      namespace: mailu
+      name: mailu-clamav
+      jsonPointers:
+        - /spec/volumeClaimTemplates
