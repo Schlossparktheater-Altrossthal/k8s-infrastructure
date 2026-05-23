@@ -12,6 +12,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: website
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      namespace: theater-website
+      name: data-postgresql-0
+      jsonPointers: [/spec/storageClassName]
   syncPolicy:
     automated:
       prune: true

@@ -14,6 +14,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: theater-vaultwarden
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      namespace: theater-vaultwarden
+      name: theater-vaultwarden-data
+      jsonPointers: [/spec/storageClassName]
   syncPolicy:
     automated:
       prune: true
