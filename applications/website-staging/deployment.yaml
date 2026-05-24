@@ -24,7 +24,7 @@ spec:
     spec:
       initContainers:
         - name: migrate
-          image: limitlessgreen/theater_website:d953fdebe2478ed08919a1db9def7622a3d7de75-staging
+          image: limitlessgreen/theater_website:f3581eb4638f3233ec625b1a9c88f4c95a6bf088-staging
           command: ["node", "scripts/run-prisma-migrate.mjs"]
           env:
             - name: DATABASE_URL
@@ -41,7 +41,7 @@ spec:
               memory: 512Mi
       containers:
         - name: website
-          image: limitlessgreen/theater_website:d953fdebe2478ed08919a1db9def7622a3d7de75-staging
+          image: limitlessgreen/theater_website:f3581eb4638f3233ec625b1a9c88f4c95a6bf088-staging
           ports:
             - containerPort: 3000
               name: http
