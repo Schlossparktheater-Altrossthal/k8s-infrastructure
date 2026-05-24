@@ -71,8 +71,10 @@ spec:
                 - -euc
                 - |
                   echo "Starting production → staging DB sync…"
-                  pg_dump --no-owner --no-acl --clean --if-exists "$PROD_DATABASE_URL" \
-                    | psql "$STAGING_DATABASE_URL"
+                  PROD_URL="${PROD_DATABASE_URL%%\?*}"
+                  STAGING_URL="${STAGING_DATABASE_URL%%\?*}"
+                  pg_dump --no-owner --no-acl --clean --if-exists "$PROD_URL" \
+                    | psql "$STAGING_URL"
                   echo "Sync complete."
               env:
                 - name: PROD_DATABASE_URL
