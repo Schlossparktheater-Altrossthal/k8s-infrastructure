@@ -1,29 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: theater-website
+  name: theater-website-staging
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: theater
   source:
     repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
     targetRevision: HEAD
-    path: applications/website
+    path: applications/website-staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: theater-website
+    namespace: theater-website-staging
   ignoreDifferences:
-    - group: ""
-      kind: PersistentVolumeClaim
-      namespace: theater-website
+    - kind: PersistentVolumeClaim
       name: data-postgresql-0
-      jsonPointers: [/spec/storageClassName]
-    - group: apps
-      kind: StatefulSet
-      namespace: theater-website
-      name: postgresql
-      jqPathExpressions:
-        - .spec.volumeClaimTemplates[].spec.storageClassName
+      namespace: theater-website-staging
+      jsonPointers:
+        - /spec/storageClassName
   syncPolicy:
     automated:
       prune: true
