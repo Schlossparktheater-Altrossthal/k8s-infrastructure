@@ -1,5 +1,5 @@
 # Services still running in Docker Compose on node 2 (vmd179361 / 38.242.238.59)
-# IPs are synced automatically by k8s-endpoint-sync timer (TODO: adapt for node 2)
+# WireGuard IP of node 2: 192.168.10.17
 
 ---
 # Mailu SMTP/IMAP — mail.sommertheater-altrossthal.de
@@ -23,7 +23,7 @@ metadata:
   namespace: docker-backends
 subsets:
   - addresses:
-      - ip: PLACEHOLDER_NODE2_IP
+      - ip: 192.168.10.17
     ports:
       - name: http
         port: 80
@@ -50,7 +50,7 @@ metadata:
   namespace: docker-backends
 subsets:
   - addresses:
-      - ip: PLACEHOLDER_NODE2_IP
+      - ip: 192.168.10.17
     ports:
       - name: http
         port: 11000

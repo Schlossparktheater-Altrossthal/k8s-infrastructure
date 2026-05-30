@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: theater-docker-backends
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: theater
+  source:
+    repoURL: https://github.com/Schlossparktheater-Altrossthal/k8s-infrastructure
+    targetRevision: HEAD
+    path: docker-backends
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docker-backends
+  ignoreDifferences:
+    - group: ""
+      kind: Endpoints
+      namespace: docker-backends
+      jsonPointers:
+        - /subsets
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
