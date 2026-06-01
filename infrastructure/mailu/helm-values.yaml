@@ -1,6 +1,6 @@
 # Mailu Helm Values für K8s Migration
 global:
-  storageClass: longhorn-single
+  storageClass: longhorn
 
 hostnames:
   - mail.sommertheater-altrossthal.de
