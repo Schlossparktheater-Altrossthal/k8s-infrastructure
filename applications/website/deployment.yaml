@@ -6,7 +6,7 @@ metadata:
   name: website
   namespace: theater-website
 spec:
-  replicas: 0
+  replicas: 1
   minReadySeconds: 10
   progressDeadlineSeconds: 300
   strategy:
@@ -22,6 +22,8 @@ spec:
       labels:
         app: website
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vmd179361
       initContainers:
         - name: migrate
           image: limitlessgreen/theater_website:bc6dd91af1394437632ec329c58a0e3048dc1ff4

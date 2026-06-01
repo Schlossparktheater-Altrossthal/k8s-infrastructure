@@ -29,33 +29,6 @@ subsets:
         port: 80
 
 ---
-# Theater Website — sommertheater-altrossthal.de (runs exclusively on theater server)
-apiVersion: v1
-kind: Service
-metadata:
-  name: theater-website
-  namespace: docker-backends
-  annotations:
-    docker-backend/node: theater-server
-spec:
-  ports:
-    - name: http
-      port: 3000
-      targetPort: 3000
----
-apiVersion: v1
-kind: Endpoints
-metadata:
-  name: theater-website
-  namespace: docker-backends
-subsets:
-  - addresses:
-      - ip: 192.168.10.17
-    ports:
-      - name: http
-        port: 3000
-
----
 # Nextcloud AIO — cloud.sommertheater-altrossthal.de
 apiVersion: v1
 kind: Service

@@ -20,45 +20,6 @@ spec:
     certResolver: cloudflare
 
 ---
-# Theater Website — sommertheater-altrossthal.de (runs exclusively on theater server)
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: theater-website
-  namespace: docker-backends
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`sommertheater-altrossthal.de`) || Host(`www.sommertheater-altrossthal.de`)
-      kind: Rule
-      services:
-        - name: theater-website
-          port: 3000
-  tls:
-    certResolver: cloudflare
-
----
-# HTTP → HTTPS redirect for theater website
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: theater-website-http
-  namespace: docker-backends
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(`sommertheater-altrossthal.de`) || Host(`www.sommertheater-altrossthal.de`)
-      kind: Rule
-      middlewares:
-        - name: redirect-https
-          namespace: theater-website
-      services:
-        - name: theater-website
-          port: 3000
-
----
 # Nextcloud AIO
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

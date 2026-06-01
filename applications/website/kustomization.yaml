@@ -6,4 +6,5 @@ resources:
   - postgresql.yaml
   - deployment.yaml
   - certificate.yaml
+  - ingressroute.yaml
   - backup.yaml
