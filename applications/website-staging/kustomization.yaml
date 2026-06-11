@@ -10,3 +10,4 @@ resources:
   - backup.yaml
   - db-sync.yaml
   - maintenance.yaml
+  - middlewares.yaml

@@ -10,6 +10,9 @@ spec:
     - match: Host(`sommertheater-altrossthal.de`) || Host(`www.sommertheater-altrossthal.de`)
       kind: Rule
       middlewares:
+        - name: security-headers
+        - name: compress
+        - name: retry
         - name: maintenance-fallback
       services:
         - name: website
