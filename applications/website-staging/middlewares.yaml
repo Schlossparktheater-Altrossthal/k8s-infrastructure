@@ -30,6 +30,20 @@ spec:
     attempts: 2
     initialInterval: 100ms
 ---
+# Per-client rate limit. Cf-Connecting-Ip is set by Cloudflare to the real
+# visitor IP, so this works even though Traefik only sees Cloudflare's IPs.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: theater-website-staging
+spec:
+  rateLimit:
+    average: 50
+    burst: 100
+    sourceCriterion:
+      requestHeaderName: Cf-Connecting-Ip
+---
 # Secret "staging-basic-auth" is created out-of-band (kubectl), not via GitOps,
 # since it holds credentials.
 apiVersion: traefik.io/v1alpha1

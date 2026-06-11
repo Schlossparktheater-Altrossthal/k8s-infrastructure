@@ -11,6 +11,7 @@ spec:
       kind: Rule
       middlewares:
         - name: security-headers
+        - name: rate-limit
         - name: compress
         - name: retry
         - name: maintenance-fallback

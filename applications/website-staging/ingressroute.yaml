@@ -12,6 +12,7 @@ spec:
       middlewares:
         - name: basic-auth
         - name: security-headers
+        - name: rate-limit
         - name: compress
         - name: retry
         - name: maintenance-fallback
