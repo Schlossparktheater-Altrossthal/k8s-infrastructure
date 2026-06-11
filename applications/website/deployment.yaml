@@ -6,7 +6,7 @@ metadata:
   name: website
   namespace: theater-website
 spec:
-  replicas: 1
+  replicas: 2
   minReadySeconds: 10
   progressDeadlineSeconds: 300
   strategy:
@@ -22,8 +22,6 @@ spec:
       labels:
         app: website
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: vmd179361
       initContainers:
         - name: migrate
           image: limitlessgreen/theater_website:bc6dd91af1394437632ec329c58a0e3048dc1ff4
@@ -54,6 +52,8 @@ spec:
               value: https://sommertheater-altrossthal.de
             - name: NEXT_PUBLIC_BASE_URL
               value: https://sommertheater-altrossthal.de
+            - name: REDIS_URL
+              value: redis://redis.theater-website.svc.cluster.local:6379
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -110,3 +110,40 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: website
+  namespace: theater-website
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: website
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: website
+  namespace: theater-website
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: website

@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - vault-access.yaml
   - postgresql.yaml
+  - redis.yaml
   - deployment.yaml
   - certificate.yaml
   - ingressroute.yaml
