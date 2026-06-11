@@ -9,6 +9,8 @@ spec:
   routes:
     - match: Host(`sommertheater-altrossthal.de`) || Host(`www.sommertheater-altrossthal.de`)
       kind: Rule
+      middlewares:
+        - name: maintenance-fallback
       services:
         - name: website
           port: 3000

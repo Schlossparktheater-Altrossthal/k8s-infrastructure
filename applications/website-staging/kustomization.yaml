@@ -9,3 +9,4 @@ resources:
   - ingressroute.yaml
   - backup.yaml
   - db-sync.yaml
+  - maintenance.yaml

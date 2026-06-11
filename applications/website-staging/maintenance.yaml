@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maintenance-page
+  namespace: theater-website-staging
+data:
+  index.html: |
+    <!doctype html>
+    <html lang="de">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Wartungsarbeiten – Sommertheater Altrossthal</title>
+        <style>
+          body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, sans-serif;
+            background: #1a1a1a;
+            color: #f5f5f5;
+            text-align: center;
+            padding: 1.5rem;
+            box-sizing: border-box;
+          }
+          .box { max-width: 32rem; }
+          h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+          p { color: #cfcfcf; line-height: 1.5; }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h1>Wir sind gleich wieder da</h1>
+          <p>
+            Diese Seite wird gerade gewartet. Bitte versuche es in ein paar
+            Minuten erneut.
+          </p>
+        </div>
+      </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-page
+  namespace: theater-website-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance-page
+  template:
+    metadata:
+      labels:
+        app: maintenance-page
+    spec:
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:alpine
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: page
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+      volumes:
+        - name: page
+          configMap:
+            name: maintenance-page
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-page
+  namespace: theater-website-staging
+spec:
+  selector:
+    app: maintenance-page
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: maintenance-fallback
+  namespace: theater-website-staging
+spec:
+  errors:
+    status:
+      - "502-504"
+    service:
+      name: maintenance-page
+      port: 80
+    query: /
