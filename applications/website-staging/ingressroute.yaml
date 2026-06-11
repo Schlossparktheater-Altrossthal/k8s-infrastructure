@@ -10,6 +10,7 @@ spec:
     - match: Host(`staging.sommertheater-altrossthal.de`)
       kind: Rule
       middlewares:
+        - name: basic-auth
         - name: security-headers
         - name: compress
         - name: retry
