@@ -22,6 +22,8 @@ spec:
       labels:
         app: website
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vmd179361
       initContainers:
         - name: migrate
           image: limitlessgreen/theater_website:f3d26be446c69359f37cd17dffcb7f62c5c25bc5-staging

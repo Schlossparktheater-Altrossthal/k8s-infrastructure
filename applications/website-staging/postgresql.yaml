@@ -14,6 +14,8 @@ spec:
       labels:
         app: postgresql
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vmd179361
       containers:
         - name: postgresql
           image: postgres:16-alpine
@@ -51,7 +53,7 @@ spec:
         name: data
       spec:
         accessModes: [ReadWriteOnce]
-        storageClassName: longhorn-ha
+        storageClassName: local-path
         resources:
           requests:
             storage: 5Gi
