@@ -85,6 +85,7 @@ rspamd:
     sommertheater: "true"
 
 clamav:
+  enabled: false
   nodeSelector:
     sommertheater: "true"
 
