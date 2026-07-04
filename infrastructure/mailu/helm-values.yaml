@@ -54,7 +54,7 @@ api:
   enabled: true
 
 antivirus:
-  enabled: true
+  enabled: false
 
 fetchmail:
   enabled: true
