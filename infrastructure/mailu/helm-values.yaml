@@ -52,6 +52,8 @@ admin:
 
 api:
   enabled: true
+  nodeSelector:
+    sommertheater: "true"
 
 antivirus:
   enabled: false
@@ -65,6 +67,16 @@ fetchmail:
 fullTextSearch:
   enabled: true
   attachments: true
+
+# oletools/tika hatten keinen nodeSelector und liefen dadurch teils auf dem
+# LimitlessGreen-Node statt dem Theaternode -> explizit fixieren
+oletools:
+  nodeSelector:
+    sommertheater: "true"
+
+tika:
+  nodeSelector:
+    sommertheater: "true"
 
 webmail:
   enabled: true
