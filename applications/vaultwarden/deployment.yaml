@@ -17,6 +17,8 @@ spec:
       labels:
         app: theater-vaultwarden
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vmd116756.contaboserver.net
       containers:
         - name: vaultwarden
           image: vaultwarden/server:1.36.0
