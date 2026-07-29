@@ -11,3 +11,19 @@ resources:
   - service.yaml
   - certificate.yaml
   - ingressroute.yaml
+
+replacements:
+  - source:
+      kind: Certificate
+      name: theater-vaultwarden-tls
+      fieldPath: spec.dnsNames.0
+    targets:
+      - select:
+          kind: IngressRoute
+          name: theater-vaultwarden
+        fieldPaths:
+          - spec.routes.0.match
+        options:
+          delimiter: "`"
+          index: 1
+
