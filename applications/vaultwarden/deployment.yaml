@@ -29,6 +29,12 @@ spec:
           envFrom:
             - secretRef:
                 name: theater-vaultwarden-config
+          env:
+            - name: DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: theater-vaultwarden-public-config
+                  key: DOMAIN
           readinessProbe:
             httpGet:
               path: /alive

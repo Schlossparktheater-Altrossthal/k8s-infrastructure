@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: theater-vaultwarden-public-config
+  namespace: theater-vaultwarden
+data:
+  # Replaced from Certificate.spec.dnsNames[0] by kustomization.yaml.
+  DOMAIN: https://vaultwarden.invalid
