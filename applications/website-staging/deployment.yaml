@@ -26,7 +26,7 @@ spec:
         kubernetes.io/hostname: vmd179361
       initContainers:
         - name: migrate
-          image: limitlessgreen/theater_website:03b3078763c292c28af1f01b7263f8599d2d2866-staging
+          image: limitlessgreen/theater_website:022d60c064f0302dda5625189ea15a40d9fe7e3a-staging
           command: ["node", "scripts/run-prisma-migrate.mjs"]
           env:
             - name: DATABASE_URL
@@ -43,7 +43,7 @@ spec:
               memory: 512Mi
       containers:
         - name: website
-          image: limitlessgreen/theater_website:03b3078763c292c28af1f01b7263f8599d2d2866-staging
+          image: limitlessgreen/theater_website:022d60c064f0302dda5625189ea15a40d9fe7e3a-staging
           ports:
             - containerPort: 3000
               name: http
