@@ -26,6 +26,12 @@ spec:
       namespace: theater-website
       jqPathExpressions:
         - .spec.volumeClaimTemplates[].spec.storageClassName
+    - group: apps
+      kind: Deployment
+      name: website
+      namespace: theater-website
+      jsonPointers:
+        - /spec/replicas
   syncPolicy:
     automated:
       prune: true
