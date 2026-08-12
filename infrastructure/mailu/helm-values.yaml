@@ -37,11 +37,32 @@ ingress:
 # front: Mail-Ports direkt auf Node 2 via hostPort
 # Recreate-Strategie nötig: Rolling Update scheitert, weil hostPorts nicht
 # gleichzeitig von zwei Pods belegt werden können
+# HTTP/HTTPS hostPorts deaktiviert, da Traefik diese auf dem Edge-Node übernimmt
 front:
   nodeSelector:
     sommertheater: "true"
   hostPort:
     enabled: true
+    ports:
+      - containerPort: 25
+        hostPort: 25
+      - containerPort: 465
+        hostPort: 465
+      - containerPort: 587
+        hostPort: 587
+      - containerPort: 110
+        hostPort: 110
+      - containerPort: 995
+        hostPort: 995
+      - containerPort: 143
+        hostPort: 143
+      - containerPort: 993
+        hostPort: 993
+      - containerPort: 4190
+        hostPort: 4190
+  externalPort:
+    http: 80
+    https: 443
   strategy:
     type: Recreate
 
